@@ -1,11 +1,18 @@
 import pandas as pd
 import clients_etl
+import appointments_etl
+import bank_etl
 import psycopg2
 import psycopg2.extras
 
-file_path = "/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/Clients-HachibyTokyo-2023-05-07-06-38-58.csv"
+file_path_clients = "/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/Clients-HachibyTokyo-2023-05-07-06-38-58.csv"
+file_path_appointments = "/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/Appointment schedules(01_01_2023 - 30_04_2023).csv"
+file_path_bank = '/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/AccountStatements_10052023_1759.xls'
 
-clients_df, pets_df = clients_etl.process_clients_data(file_path)
+clients_df, pets_df = clients_etl.process_clients_data(file_path_clients)
+appointments_df = appointments_etl.process_appointments_data(
+    file_path_appointments)
+bank_df = bank_etl.process_bank_data(file_path_bank)
 
 
 def connect_to_db():
@@ -31,7 +38,7 @@ def create_tables(conn):
             last_name VARCHAR(255),
             email VARCHAR(255),
             address TEXT
-        )
+        );
         """)
 
         cur.execute("""
@@ -42,7 +49,35 @@ def create_tables(conn):
             pet_name VARCHAR(255),
             pet_breed VARCHAR(255),
             FOREIGN KEY (owner_contact_no) REFERENCES clients (contact_no)
-        )
+        );
+        """)
+
+        cur.execute("""
+        DROP TABLE IF EXISTS appointments CASCADE;
+        CREATE TABLE IF NOT EXISTS appointments (
+            appointment_id VARCHAR(255) PRIMARY KEY,
+            date VARCHAR(255),
+            time VARCHAR(255),
+            owner_contact_no VARCHAR(255),
+            pet_name VARCHAR(255),
+            service VARCHAR(255),
+            staff VARCHAR(255),
+            date_created VARCHAR(255),
+            FOREIGN KEY (owner_contact_no) REFERENCES clients (contact_no)
+        );
+        """)
+
+        cur.execute("""
+        DROP TABLE IF EXISTS bank_transactions CASCADE;
+        CREATE TABLE IF NOT EXISTS bank_transactions (
+            id SERIAL PRIMARY KEY,
+            date VARCHAR(255),
+            time VARCHAR(255),
+            description VARCHAR(255),
+            deposit VARCHAR(255),
+            withdrawal VARCHAR(255),
+            balance VARCHAR(255)
+        );
         """)
         conn.commit()
 
@@ -68,3 +103,5 @@ def insert_data_to_db(conn, df, table_name):
 
 insert_data_to_db(conn, clients_df, 'clients')
 insert_data_to_db(conn, pets_df, 'pets')
+insert_data_to_db(conn, appointments_df, 'appointments')
+insert_data_to_db(conn, bank_df, 'bank_transactions')
