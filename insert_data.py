@@ -6,13 +6,14 @@ import psycopg2
 import psycopg2.extras
 
 file_path_clients = "/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/Clients-HachibyTokyo-2023-05-07-06-38-58.csv"
-file_path_appointments = "/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/Appointment schedules(01_01_2023 - 30_04_2023).csv"
-file_path_bank = '/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/AccountStatements_10052023_1759.xls'
+file_path_appointments = "/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/Appointment schedules(01_05_2023 - 31_05_2023).xlsx"
+# bank can be done maually
+# file_path_bank = '/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/AccountStatements_10052023_1759.xls'
 
 clients_df, pets_df = clients_etl.process_clients_data(file_path_clients)
 appointments_df = appointments_etl.process_appointments_data(
     file_path_appointments)
-bank_df = bank_etl.process_bank_data(file_path_bank)
+# bank_df = bank_etl.process_bank_data(file_path_bank)
 
 
 def connect_to_db():
@@ -83,7 +84,8 @@ def create_tables(conn):
 
 
 conn = connect_to_db()
-create_tables(conn)
+# no need to create tables if they already exist
+# create_tables(conn)
 
 
 def insert_data_to_db(conn, df, table_name):
@@ -104,4 +106,4 @@ def insert_data_to_db(conn, df, table_name):
 insert_data_to_db(conn, clients_df, 'clients')
 insert_data_to_db(conn, pets_df, 'pets')
 insert_data_to_db(conn, appointments_df, 'appointments')
-insert_data_to_db(conn, bank_df, 'bank_transactions')
+# insert_data_to_db(conn, bank_df, 'bank_transactions')
