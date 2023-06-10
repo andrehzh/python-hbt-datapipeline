@@ -1,6 +1,7 @@
 import pandas as pd
+import re
 
-file_path = "/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/Clients-HachibyTokyo-2023-05-07-06-38-58.csv"
+file_path = "/Users/andre/Plan3 Design & Build Dropbox/Andre Heng/Mac/Documents/HBT/Data/MoeGo-Export-Client-HachibyTokyo-2023-06-01-10-01-58.csv"
 
 
 def extract_clients_data(file_path):
@@ -14,8 +15,19 @@ def extract_pet_names(pet_info):
 
 
 def extract_pet_breeds(pet_info):
-    pet_breed = pet_info.split('(')[-1].strip().replace(')', '')
-    return pet_breed
+    # The pattern to extract data between the outer parentheses
+    pattern = r'\((.*)\)'
+
+    # Using regex to extract the pet breed
+    match = re.search(pattern, pet_info)
+
+    # Check if we found a match
+    if match:
+        # If we found a match, return the content inside the parentheses
+        return match.group(1)
+    else:
+        # If no match, return None or an empty string or whatever you prefer
+        return None
 
 
 def clean_clients_data(clients_df):
@@ -68,6 +80,14 @@ def process_clients_data(file_path):
     return clean_clients_df, pets_df
 
 
+def output_df_to_excel(clients_df, pets_df):
+    writer = pd.ExcelWriter("clients-cleaned.xlsx", engine='xlsxwriter')
+    clients_df.to_excel(writer, sheet_name='clients', index=False)
+    pets_df.to_excel(writer, sheet_name='pets', index=False)
+    writer.save()
+
+
 clients_df, pets_df = process_clients_data(file_path)
+output_df_to_excel(clients_df, pets_df)
 print(clients_df)
 print(pets_df)
